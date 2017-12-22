@@ -9,14 +9,14 @@
 <body>
 <div id="chartContainer">
 		<script type="text/javascript">
-			var svg = dimple.newSvg("#chartContainer",600,410);//creating a SVG with given size
+			var svg = dimple.newSvg("#chartContainer",4000,410);//creating a SVG with given size
 			d3.csv("test.log",function(data)// function called when athlets.csv is done loading
 			{
 				console.log("done loading");
 				var chart = new dimple.chart(svg,data); // getting a Chart instance to draw on
 				chart.addCategoryAxis("x","timestamp"); 
 				chart.addMeasureAxis("y","sensor"); 
-				chart.addSeries("nationality",dimple.plot.bar); 
+				chart.addSeries(null,dimple.plot.bar); 
 				chart.draw();
 			});
 		</script>

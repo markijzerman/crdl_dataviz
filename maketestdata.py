@@ -45,7 +45,7 @@ fh = FileHandlerWithHeader('test.log', 'timestamp, sensor',  delay=True)
 fh.setLevel(logging.INFO)
 
 # Add formatter to the file handler.
-formatter = logging.Formatter("%(asctime)s, %(message)s", "%H:%M:%S")
+formatter = logging.Formatter('%(asctime)s.%(msecs)03d, %(message)s', '%H:%M:%S')
 fh.setFormatter(formatter)
 
 # Add the handler to the logger.
