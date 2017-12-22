@@ -52,5 +52,5 @@ fh.setFormatter(formatter)
 logger.addHandler(fh)
 
 while True:
-    logger.info(random.uniform(0., 1.))
+    logger.info(random.uniform(0., 100.))
     time.sleep(0.01)
