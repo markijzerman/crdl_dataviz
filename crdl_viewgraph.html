@@ -1,25 +1,18 @@
 <!DOCTYPE html>
-<html>
-<head>
-	<title>CRDL viz</title>
-	<script src="http://d3js.org/d3.v3.min.js"></script>
-	<script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+<svg width="960" height="500"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
 
-</head>
-<body>
-<div id="chartContainer">
-		<script type="text/javascript">
-			var svg = dimple.newSvg("#chartContainer",4000,410);//creating a SVG with given size
-			d3.csv("test.log",function(data)// function called when athlets.csv is done loading
-			{
-				console.log("done loading");
-				var chart = new dimple.chart(svg,data); // getting a Chart instance to draw on
-				chart.addCategoryAxis("x","timestamp"); 
-				chart.addMeasureAxis("y","sensor"); 
-				chart.addSeries(null,dimple.plot.bar); 
-				chart.draw();
-			});
-		</script>
-	</div>
-</body>
-</html>
+d3.csv("test.log", function(data) {
+
+
+	for (var i = 0; i < data.length; i++) {
+		var d = data[i];
+		// console.log(Object.keys(d));
+		console.log(data[i], data[i].timestamp, parseFloat(data[i].sensor));
+	}
+
+});
+
+
+</script>

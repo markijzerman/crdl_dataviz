@@ -41,16 +41,16 @@ logger.setLevel(logging.INFO)
 
 # Create a file handler from our new FileHandlerWith Header class and set the
 # logging level.
-fh = FileHandlerWithHeader('test.log', 'timestamp, sensor',  delay=True)
+fh = FileHandlerWithHeader('test.log','timestamp,sensor',  delay=True)
 fh.setLevel(logging.INFO)
 
 # Add formatter to the file handler.
-formatter = logging.Formatter('%(asctime)s.%(msecs)03d, %(message)s', '%H:%M:%S')
+formatter = logging.Formatter('%(asctime)s.%(msecs)03d,%(message)s','%H:%M:%S')
 fh.setFormatter(formatter)
 
 # Add the handler to the logger.
 logger.addHandler(fh)
 
 while True:
-    logger.info(random.uniform(0, 1.))
+    logger.info(random.uniform(0., 1.))
     time.sleep(0.01)
