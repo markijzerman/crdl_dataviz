@@ -10,26 +10,74 @@
 
 <div id="chart"></div>
 
+
 <script>
 var chart = c3.generate({
     data: {
+        x: 'lognr',
         url: 'CRDL.csv',
         mimeType: 'csv',
-        type: 'bar'
+        groups:[['runTime','connectionTime', 'actualTouchTime'], ['amtOfSessions','amtModeKeyPressed']],
+        // hide:[['amtOfSessions','amtModeKeyPressed']],
+        type: 'bar',  
     },
+
+
 
     axis: {
         x: {
 
         },
         y: {
+            label: {
+                text: 'time used',
+                position: 'outer-middle'
+            },
             tick: {
-                format: (function(d) {return d/60})
+                format: (function(num) {
+                    var h = Math.floor( num / 3600 ); 
+                    var m = Math.floor((num - h * 3600) / 60 ); 
+                    var s = num - (h * 3600 + m * 60); 
+                    return ( h < 10 ? "0" + h : h ) + ":" + ( m < 10 ? "0" + m : m ) + ":" + ( s < 10 ? "0" + s : s );
+                })
             }
         }
+    },
+
+    tooltip: {
+        format: {
+            title: function (d) {return 'Session ' + (d); },
+            // amtOfTouches: d3.format($),
+            // value: function(value, ratio, id) {
+            //     var format = id === 'amtOfTouches' ? d3.format('$') : d3.format();
+            //     return format(value);
+            // }
+
+        }
     }
+
+
+
+
+
+
     
 });
-
+// chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actualTouchTime:'Actual touch time', amtOfTouches:'Amount of touches', amtModeKeyPressed:'Amount of mode key pressed', amtOfSessions:'Amount of Sessions'});
 
 </script>
+
+<!-- Hide unwanted bar graphs -->
+<style>
+.c3-target-amtOfTouches {
+  display: none;
+}
+
+.c3-target-amtModeKeyPressed {
+  display: none;
+}
+
+.c3-target-amtOfSessions {
+  display: none;
+}
+</style>
