@@ -13,9 +13,21 @@
 <script>
 var chart = c3.generate({
     data: {
-        url: 'crdltestdata.csv',
+        url: 'CRDL.csv',
         mimeType: 'csv',
+        type: 'bar'
     },
+
+    axis: {
+        x: {
+
+        },
+        y: {
+            tick: {
+                format: (function(d) {return d/60})
+            }
+        }
+    }
     
 });
 
