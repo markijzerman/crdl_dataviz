@@ -15,14 +15,18 @@
 <body>
 <h1>CRDL LOG DETAILS</h1>
 
+<!-- <input type="file" onchange="loadFile()" /> -->
+
 <div id="chart"></div>
 
-
 <script>
+
+var filename = 'CRDL.csv';
+
 var chart = c3.generate({
     data: {
         x: 'lognr',
-        url: 'CRDL.csv',
+        url: filename,
         mimeType: 'csv',
         groups:[['runTime','connectionTime', 'actualTouchTime'], ['amtOfSessions','amtModeKeyPressed']],
         // hide:[['amtOfSessions','amtModeKeyPressed']],
@@ -108,10 +112,6 @@ d3.csv('CRDL.csv',function(rows){
   display: none;
 }
 </style>
-
-
-
-<p>==Totals==</p><br>
 <p>CRDL has been on for </p><p id="amtOfTimesOn"></p><p> times since reset of the log.</p><br>
 <p>It ran for a total of </p><p id="totalRuntime"></p><p>.</p><br>
 <p>People shared a connection for </p><p id="totalConnectionTime"></p><p>.</p><br>
@@ -151,7 +151,7 @@ d3.csv("CRDL.csv",function(csv){
         amtOfSessions.push(+d.amtOfSessions);
     });
 
-    // see times CRDL was on (max lognr)
+    // print values to the html
     document.getElementById("amtOfTimesOn").innerHTML = Math.max(...lognr);
     document.getElementById("totalRuntime").innerHTML = toHHMMSS((runTime.reduce((a, b)=>a+b)));
     document.getElementById("totalConnectionTime").innerHTML = toHHMMSS((connectionTime.reduce((a, b)=>a+b)));
@@ -162,9 +162,104 @@ d3.csv("CRDL.csv",function(csv){
 </script>
 
 <style>
+@media all { 
+	#wp-admin-bar-updates { display: none }
+	body {
+	    font: normal 100% Open Sans,Helvetica,sans-serif;
+	    background-color: #fff;
+	    color: #000;
+	    padding: .6em;
+	    -webkit-font-smoothing: antialiased;
+	}
+	.container {
+	    overflow: hidden;
+	    padding: 0 1em;
+	    max-width: 45em;
+	    margin: auto;
+	}
+	/* blog title */
+	h1 {
+        font-family: acta-display, Georgia, Times, serif;
+	    font-size: 3em;
+	    color: #333;
+	    font-weight: normal;
+	    margin-top: 1em;
+	    text-align: center;
+	}
 
-p {
-    display: inline;
+	img {
+	    border: 0;
+	    padding: 3px;
+	}
+	img a { border: 0 }
+	p {
+        display: inline;
+	    line-height: 1.45em;
+	    margin: .7em 0 0 0;
+	    font-family: ff-meta-serif-web-pro, Georgia, Cambria, 'Times New Roman', Times, serif;
+	    font-size: 1.3em;
+	    color: #333;
+	    -webkit-font-smoothing: antialiased;
+	}
+	a:link {
+	    color: #333;
+	    text-decoration: none;
+	    border-width: 0;
+	    border-style: none;
+	}
+	a:visited {
+	    color: #333;
+	    text-decoration: none;
+	    border: 0;
+	    border-width: 0;
+	    border-style: none;
+	}
+	a:hover {
+	    color: #999;
+	    text-decoration: none;
+	    border: 0;
+	    border-width: 0;
+	    border-style: none;
+	}
+
+    #amtOfTimesOn {
+        color: rgb(0, 0, 0);
+        font-weight: bold;
+    }
+
+
+    #totalRuntime {
+        color: rgb(0, 0, 0);
+        font-weight: bold;
+    }
+
+
+    #totalConnectionTime {
+        color: rgb(0, 0, 0);
+        font-weight: bold;
+    }
+
+
+    #totalActualTouchTime {
+        color: rgb(0, 0, 0);
+        font-weight: bold;
+    }
+
+
+
+    #totalTouches {
+        color: rgb(0, 0, 0);
+        font-weight: bold;
+    }
+
+
+
+    #totalSessions {
+        color: rgb(0, 0, 0);
+        font-weight: bold;
+    }
+
+
 }
 
 </style>
