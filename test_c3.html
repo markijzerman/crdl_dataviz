@@ -8,6 +8,8 @@
 <!-- Load d3.js and c3.js -->
 <script src="https://d3js.org/d3.v3.min.js"></script>
 <script src="c3.min.js"></script>
+<script src="./papaparse.min.js"></script>
+<script src="./jquery-3.3.1.min.js"></script>
 </head>
 
 
@@ -15,41 +17,104 @@
 <body>
 <h1>CRDL LOG DETAILS</h1>
 
-<!-- <input type="file" onchange="loadFile()" /> -->
-
 <div id="chart">
 
 <script>
+  var data;
+ 
+ function handleFileSelect(evt) {
+   var file = evt.target.files[0];
 
-var filename = 'CRDL.csv'; // this should get the value from last page
+   Papa.parse(file, {
+     header: true,
+     dynamicTyping: true,
+     complete: function(results) {
+       // when loaded a csv file, put in arrays
+       var lognr = [];
+       var runTime = [];
+       var connectionTime = [];
+       var actualTouchTime = [];
+       var amtOfTouches = [];
+       var amtModeKeyPressed = [];
+       var amtOfSessions = [];
 
-var chart = c3.generate({
-    data: {
-        x: 'lognr',
-        url: filename,
-        mimeType: 'csv',
-        groups:[['runTime','connectionTime', 'actualTouchTime'], ['amtOfSessions','amtModeKeyPressed']],
-        // hide:[['amtOfSessions','amtModeKeyPressed']],
-        type: 'bar', 
-        labels: {
-            format: {
-                
-                runTime: (function(num) {
-                    var h = Math.floor( num / 3600 ); 
-                    var m = Math.floor((num - h * 3600) / 60 ); 
-                    var s = Math.floor(num - (h * 3600 + m * 60)); 
-                    return ( h < 10 ? "0" + h : h ) + ":" + ( m < 10 ? "0" + m : m ) + ":" + ( s < 10 ? "0" + s : s );
-                })
+       for (var i = 0; i < results.data.length; i++) {
+         lognr.push(parseInt(results.data[i].lognr));
+         runTime.push(parseInt(results.data[i].runTime));
+         connectionTime.push(parseInt(results.data[i].connectionTime));
+         actualTouchTime.push(parseInt(results.data[i].actualTouchTime));
+         amtOfTouches.push(parseInt(results.data[i].amtOfTouches));
+         amtModeKeyPressed.push(parseInt(results.data[i].amtModeKeyPressed));
+         amtOfSessions.push(parseInt(results.data[i].amtOfSessions));
+       }
+       
+       // console.log(lognr);
+       // console.log(amtOfSessions);
 
+
+        // function to calculate HH:MM:SS
+    var toHHMMSS = (secs) => {
+    var sec_num = parseInt(secs, 10)    
+    var hours   = Math.floor(sec_num / 3600) % 24
+    var minutes = Math.floor(sec_num / 60) % 60
+    var seconds = sec_num % 60    
+    return [hours,minutes,seconds]
+        .map(v => v < 10 ? "0" + v : v)
+        // .filter((v,i) => v !== "00" || i > 0)
+        .join(":")
+    }
+
+    // print values to the html
+    document.getElementById("amtOfTimesOn").innerHTML = Math.max(...lognr);
+    document.getElementById("totalRuntime").innerHTML = toHHMMSS((runTime.reduce((a, b)=>a+b)));
+    document.getElementById("totalConnectionTime").innerHTML = toHHMMSS((connectionTime.reduce((a, b)=>a+b)));
+    document.getElementById("totalActualTouchTime").innerHTML = toHHMMSS((actualTouchTime.reduce((a, b)=>a+b)));
+    document.getElementById("totalTouches").innerHTML = amtOfTouches.reduce((a, b)=>a+b);
+    document.getElementById("totalSessions").innerHTML = amtOfSessions.reduce((a, b)=>a+b);
+
+
+
+
+       // START MAKING CHART
+
+    var chart = c3.generate({
+    bindto: '#chart',
+
+        data: {
+            columns: [
+                ['lognr', ...lognr], 
+                ['runTime', ...runTime],
+                ['connectionTime', ...connectionTime],
+                ['actualTouchTime', ...actualTouchTime],
+                ['amtOfTouches', ...amtOfTouches],
+                ['amtModeKeyPressed', ...amtModeKeyPressed],
+                ['amtOfSessions', ...amtOfSessions]
+            ],
+            type: 'bar'
+        },
+
+        axis: {
+            x: 'lognr',
+            groups:[['runTime','connectionTime', 'actualTouchTime'], ['amtOfSessions','amtModeKeyPressed']],
+            hide:[['amtOfSessions','amtModeKeyPressed']],
+
+            labels: {
+                format: {
+                    runTime: (function(num) {
+                        var h = Math.floor( num / 3600 ); 
+                        var m = Math.floor((num - h * 3600) / 60 ); 
+                        var s = Math.floor(num - (h * 3600 + m * 60)); 
+                        return ( h < 10 ? "0" + h : h ) + ":" + ( m < 10 ? "0" + m : m ) + ":" + ( s < 10 ? "0" + s : s );
+                    })
+
+                }
             }
-        }
-    },
+        },
 
 
 
     axis: {
         x: {
-
         },
         y: {
             label: {
@@ -89,7 +154,26 @@ var chart = c3.generate({
 });
 chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actualTouchTime:'Actual touch time', amtOfTouches:'Amount of touches', amtModeKeyPressed:'Amount of mode key pressed', amtOfSessions:'Amount of Sessions'});
 
+
+
+
+
+
+     }
+   });
+ }
+
+
+
+ $(document).ready(function(){
+   $("#csv-file").change(handleFileSelect);
+ });
+
+
+
 </script>
+
+<input type="file" id="csv-file" name="files"/>
 
 </div>
 
@@ -113,48 +197,6 @@ chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actu
 <p>Actual physical touch duration total was </p><p id="totalActualTouchTime"></p><p>.</p><br>
 <p>People touched each other for </p><p id="totalTouches"></p><p> times.</p><br>
 <p>In total there were </p><p id="totalSessions"></p><p> sessions.</p><br>
-
-<script>
-var lognr=[];
-var runTime=[];
-var connectionTime=[];
-var actualTouchTime=[];
-var amtOfTouches=[];
-var amtModeKeyPressed=[];
-var amtOfSessions=[];
-
-// function to calculate HH:MM:SS
-    var toHHMMSS = (secs) => {
-    var sec_num = parseInt(secs, 10)    
-    var hours   = Math.floor(sec_num / 3600) % 24
-    var minutes = Math.floor(sec_num / 60) % 60
-    var seconds = sec_num % 60    
-    return [hours,minutes,seconds]
-        .map(v => v < 10 ? "0" + v : v)
-        // .filter((v,i) => v !== "00" || i > 0)
-        .join(":")
-    }
-
-// read in the CSV to get data from
-d3.csv("CRDL.csv",function(csv){
-    csv.map(function(d){
-        lognr.push(d.lognr);
-        runTime.push(+d.runTime);
-        connectionTime.push(+d.connectionTime);
-        actualTouchTime.push(+d.actualTouchTime);
-        amtOfTouches.push(+d.amtOfTouches);
-        amtOfSessions.push(+d.amtOfSessions);
-    });
-
-    // print values to the html
-    document.getElementById("amtOfTimesOn").innerHTML = Math.max(...lognr);
-    document.getElementById("totalRuntime").innerHTML = toHHMMSS((runTime.reduce((a, b)=>a+b)));
-    document.getElementById("totalConnectionTime").innerHTML = toHHMMSS((connectionTime.reduce((a, b)=>a+b)));
-    document.getElementById("totalActualTouchTime").innerHTML = toHHMMSS((actualTouchTime.reduce((a, b)=>a+b)));
-    document.getElementById("totalTouches").innerHTML = amtOfTouches.reduce((a, b)=>a+b);
-    document.getElementById("totalSessions").innerHTML = amtOfSessions.reduce((a, b)=>a+b);
-});
-</script>
 
 <style>
 @media all { 
