@@ -89,13 +89,6 @@ var chart = c3.generate({
 });
 chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actualTouchTime:'Actual touch time', amtOfTouches:'Amount of touches', amtModeKeyPressed:'Amount of mode key pressed', amtOfSessions:'Amount of Sessions'});
 
-// ADD TOTALS ON PAGE
-d3.csv('CRDL.csv',function(rows){
-    console.log(rows);
-});
-
-
-
 </script>
 
 </div>
