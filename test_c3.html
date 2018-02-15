@@ -43,35 +43,34 @@
    var file = evt.target.files[0];
 
    Papa.parse(file, {
-     header: true,
-     dynamicTyping: true,
-     complete: function(results) {
+        header: true,
+        dynamicTyping: true,
+        complete: function(results) {
 
 
-    var x = document.getElementById("crdlsummary");
-    x.style.display = "block";
-    console.log("SOMETHING HAPPENED");
+        var x = document.getElementById("crdlsummary");
+        x.style.display = "block";
 
+        // when loaded a csv file, put in arrays
+        var lognr = [];
+        var runTime = [];
+        var connectionTime = [];
+        var actualTouchTime = [];
+        var amtOfTouches = [];
+        var amtModeKeyPressed = [];
+        var amtOfSessions = [];
+        var otherTimeOn = [];
 
-
-       // when loaded a csv file, put in arrays
-       var lognr = [];
-       var runTime = [];
-       var connectionTime = [];
-       var actualTouchTime = [];
-       var amtOfTouches = [];
-       var amtModeKeyPressed = [];
-       var amtOfSessions = [];
-
-       for (var i = 0; i < results.data.length; i++) {
-         lognr.push(parseInt(results.data[i].lognr));
-         runTime.push(parseInt(results.data[i].runTime));
-         connectionTime.push(parseInt(results.data[i].connectionTime));
-         actualTouchTime.push(parseInt(results.data[i].actualTouchTime));
-         amtOfTouches.push(parseInt(results.data[i].amtOfTouches));
-         amtModeKeyPressed.push(parseInt(results.data[i].amtModeKeyPressed));
-         amtOfSessions.push(parseInt(results.data[i].amtOfSessions));
-       }
+        for (var i = 0; i < results.data.length; i++) {
+            lognr.push(parseInt(results.data[i].lognr));
+            runTime.push(parseInt(results.data[i].runTime));
+            connectionTime.push(parseInt(results.data[i].connectionTime));
+            actualTouchTime.push(parseInt(results.data[i].actualTouchTime));
+            amtOfTouches.push(parseInt(results.data[i].amtOfTouches));
+            amtModeKeyPressed.push(parseInt(results.data[i].amtModeKeyPressed));
+            amtOfSessions.push(parseInt(results.data[i].amtOfSessions));
+            otherTimeOn.push(parseInt(results.data[i].runTime)-(parseInt(results.data[i].connectionTime)+parseInt(results.data[i].actualTouchTime)));
+        }
 
         // print values to the html
         document.getElementById("amtOfTimesOn").innerHTML = Math.max(...lognr);
@@ -81,31 +80,83 @@
         document.getElementById("totalTouches").innerHTML = amtOfTouches.reduce((a, b)=>a+b);
         document.getElementById("totalSessions").innerHTML = amtOfSessions.reduce((a, b)=>a+b);
 
+        // TOOLTIP FUNCTION
+
+        function tooltip_contents(d, defaultTitleFormat, defaultValueFormat, color) {
+        var $$ = this, config = $$.config, CLASS = $$.CLASS,
+        titleFormat = config.tooltip_format_title || defaultTitleFormat,
+        nameFormat = config.tooltip_format_name || function (name) { return name; },
+        valueFormat = config.tooltip_format_value || defaultValueFormat,
+        text, i, title, value, name, bgcolor;
+
+        
+    
+        for (i = 0; i < d.length; i++) {
+        if (! (d[i] && (d[i].value || d[i].value === 0))) { continue; }
+        
+        if (! text) {
+            title = 'Session ' + (d[i].index+1);
+            var curSelectedIndex = d[i].index;
+            text = "<table class='" + CLASS.tooltip + "'>" + (title || title === 0 ? "<tr><th colspan='2'>" + title + "</th></tr>" : "");
+        }
+
+    }
+
+        text += "<tr class='" + "Total runtime" + "-" + "???" + "'>";
+        text += "<td class='name'>" + "Total runtime" + "</td>";
+        text += "<td class='value'>" + _this.toHHMMSS(runTime[curSelectedIndex]) + "</td>";
+        text += "</tr>";
+
+        text += "<tr class='" + "Connection time" + "-" + "???" + "'>";
+        text += "<td class='name'>" + "Connection time" + "</td>";
+        text += "<td class='value'>" + _this.toHHMMSS(connectionTime[curSelectedIndex]) + "</td>";
+        text += "</tr>";
+
+        text += "<tr class='" + "Actual touch time" + "-" + "???" + "'>";
+        text += "<td class='name'>" + "Actual touch time" + "</td>";
+        text += "<td class='value'>" + _this.toHHMMSS(actualTouchTime[curSelectedIndex]) + "</td>";
+        text += "</tr>";
+
+        text += "<tr class='" + "Amt of touches" + "-" + "???" + "'>";
+        text += "<td class='name'>" + "Amount of touches" + "</td>";
+        text += "<td class='value'>" + amtOfTouches[curSelectedIndex] + "</td>";
+        text += "</tr>";
+
+        text += "<tr class='" + "Amt of sessions" + "-" + "???" + "'>";
+        text += "<td class='name'>" + "Amount of sessions" + "</td>";
+        text += "<td class='value'>" + amtOfSessions[curSelectedIndex] + "</td>";
+        text += "</tr>";
+
+        text += "<tr class='" + "Amt mode key pressed" + "-" + "???" + "'>";
+        text += "<td class='name'>" + "Mode key pressed" + "</td>";
+        text += "<td class='value'>" + amtModeKeyPressed[curSelectedIndex] + "</td>";
+        text += "</tr>";
+
+        return text + "</table>";   
+}
 
 
-
-       // START MAKING CHART
+    // START MAKING CHART
     var chart = c3.generate({
     bindto: '#chart',
 
-        data: {
-            columns: [
-                ['lognr', ...lognr], 
-                ['runTime', ...runTime],
-                ['connectionTime', ...connectionTime],
-                ['actualTouchTime', ...actualTouchTime],
-                ['amtOfTouches', ...amtOfTouches],
-                ['amtModeKeyPressed', ...amtModeKeyPressed],
-                ['amtOfSessions', ...amtOfSessions]
-            ],
-            type: 'bar',
-            groups: [
-                ['runTime', 'connectionTime', 'actualTouchTime']
-            ],
-            // hide:[['amtOfSessions','amtModeKeyPressed']]
-            x: 'lognr'
+    data: {
+        columns: [
+            ['lognr', ...lognr], 
+            ['runTime', ...otherTimeOn],
+            ['connectionTime', ...connectionTime],
+            ['actualTouchTime', ...actualTouchTime],
+            ['amtOfTouches', ...amtOfTouches],
+            ['amtModeKeyPressed', ...amtModeKeyPressed],
+            ['amtOfSessions', ...amtOfSessions]
+        ],
+        type: 'bar',
+        groups: [
+            ['runTime', 'connectionTime', 'actualTouchTime']
+        ],
+        x: 'lognr'
 
-        },
+    },
 
     axis: {
         y: {
@@ -125,34 +176,26 @@
     },
 
     tooltip: {
+        contents: tooltip_contents,
         format: {
             
             title: function (d) {return 'Session ' + (d); },
             value: function(value, ratio, id) {
-
-                
                 if (id === 'amtOfTouches' || id === 'amtOfSessions' || id === 'amtModeKeyPressed') {
                     format = d3.format(',');
                     return format(value);
                 }
-                
                 return _this.toHHMMSS(value);
-
             }
-
         }
     }
-
-
-
-
-
-
-    
+ 
 });
-chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actualTouchTime:'Actual touch time', amtOfTouches:'Amount of touches', amtModeKeyPressed:'Amount of mode key pressed', amtOfSessions:'Amount of Sessions'});
-
-
+// when chart fully loaded, 
+chart.data.names({runTime: 'Other time on', connectionTime: 'Connection time', actualTouchTime:'Actual touch time', amtOfTouches:'Amount of touches', amtModeKeyPressed:'Amount of mode key pressed', amtOfSessions:'Amount of Sessions'});
+chart.unload({
+        ids: ['amtOfSessions', 'amtOfTouches', 'amtModeKeyPressed']
+    });
 
 
 
@@ -160,8 +203,6 @@ chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actu
      }
    });
  }
-
-
 
  $(document).ready(function(){
    $("#csv-file").change(handleFileSelect);
