@@ -15,13 +15,30 @@
 
 
 <body>
+<div id="crdltitle">
 <h1>CRDL LOG DETAILS</h1>
+</div>
 
 <div id="chart">
 
 <script>
   var data;
- 
+  var _this = this;
+
+
+
+  _this.toHHMMSS = (secs) => {
+    var sec_num = parseInt(secs, 10)    
+    var hours   = Math.floor(sec_num / 3600) % 24
+    var minutes = Math.floor(sec_num / 60) % 60
+    var seconds = sec_num % 60    
+    return [hours,minutes,seconds]
+        .map(v => v < 10 ? "0" + v : v)
+        // .filter((v,i) => v !== "00" || i > 0)
+        .join(":")
+    }
+
+
  function handleFileSelect(evt) {
    var file = evt.target.files[0];
 
@@ -29,6 +46,14 @@
      header: true,
      dynamicTyping: true,
      complete: function(results) {
+
+
+    var x = document.getElementById("crdlsummary");
+    x.style.display = "block";
+    console.log("SOMETHING HAPPENED");
+
+
+
        // when loaded a csv file, put in arrays
        var lognr = [];
        var runTime = [];
@@ -47,36 +72,19 @@
          amtModeKeyPressed.push(parseInt(results.data[i].amtModeKeyPressed));
          amtOfSessions.push(parseInt(results.data[i].amtOfSessions));
        }
-       
-       // console.log(lognr);
-       // console.log(amtOfSessions);
 
-
-        // function to calculate HH:MM:SS
-    var toHHMMSS = (secs) => {
-    var sec_num = parseInt(secs, 10)    
-    var hours   = Math.floor(sec_num / 3600) % 24
-    var minutes = Math.floor(sec_num / 60) % 60
-    var seconds = sec_num % 60    
-    return [hours,minutes,seconds]
-        .map(v => v < 10 ? "0" + v : v)
-        // .filter((v,i) => v !== "00" || i > 0)
-        .join(":")
-    }
-
-    // print values to the html
-    document.getElementById("amtOfTimesOn").innerHTML = Math.max(...lognr);
-    document.getElementById("totalRuntime").innerHTML = toHHMMSS((runTime.reduce((a, b)=>a+b)));
-    document.getElementById("totalConnectionTime").innerHTML = toHHMMSS((connectionTime.reduce((a, b)=>a+b)));
-    document.getElementById("totalActualTouchTime").innerHTML = toHHMMSS((actualTouchTime.reduce((a, b)=>a+b)));
-    document.getElementById("totalTouches").innerHTML = amtOfTouches.reduce((a, b)=>a+b);
-    document.getElementById("totalSessions").innerHTML = amtOfSessions.reduce((a, b)=>a+b);
+        // print values to the html
+        document.getElementById("amtOfTimesOn").innerHTML = Math.max(...lognr);
+        document.getElementById("totalRuntime").innerHTML = _this.toHHMMSS((runTime.reduce((a, b)=>a+b)));
+        document.getElementById("totalConnectionTime").innerHTML = _this.toHHMMSS((connectionTime.reduce((a, b)=>a+b)));
+        document.getElementById("totalActualTouchTime").innerHTML = _this.toHHMMSS((actualTouchTime.reduce((a, b)=>a+b)));
+        document.getElementById("totalTouches").innerHTML = amtOfTouches.reduce((a, b)=>a+b);
+        document.getElementById("totalSessions").innerHTML = amtOfSessions.reduce((a, b)=>a+b);
 
 
 
 
        // START MAKING CHART
-
     var chart = c3.generate({
     bindto: '#chart',
 
@@ -90,32 +98,16 @@
                 ['amtModeKeyPressed', ...amtModeKeyPressed],
                 ['amtOfSessions', ...amtOfSessions]
             ],
-            type: 'bar'
+            type: 'bar',
+            groups: [
+                ['runTime', 'connectionTime', 'actualTouchTime']
+            ],
+            // hide:[['amtOfSessions','amtModeKeyPressed']]
+            x: 'lognr'
+
         },
-
-        axis: {
-            x: 'lognr',
-            groups:[['runTime','connectionTime', 'actualTouchTime'], ['amtOfSessions','amtModeKeyPressed']],
-            hide:[['amtOfSessions','amtModeKeyPressed']],
-
-            labels: {
-                format: {
-                    runTime: (function(num) {
-                        var h = Math.floor( num / 3600 ); 
-                        var m = Math.floor((num - h * 3600) / 60 ); 
-                        var s = Math.floor(num - (h * 3600 + m * 60)); 
-                        return ( h < 10 ? "0" + h : h ) + ":" + ( m < 10 ? "0" + m : m ) + ":" + ( s < 10 ? "0" + s : s );
-                    })
-
-                }
-            }
-        },
-
-
 
     axis: {
-        x: {
-        },
         y: {
             label: {
                 text: 'time used',
@@ -136,11 +128,17 @@
         format: {
             
             title: function (d) {return 'Session ' + (d); },
-        //     amtOfTouches: d3.format($),
-        //     value: function(value, ratio, id) {
-        //         var format = id === 'amtOfTouches' ? d3.format('$') : d3.format();
-        //         return format(value);
-        //     }
+            value: function(value, ratio, id) {
+
+                
+                if (id === 'amtOfTouches' || id === 'amtOfSessions' || id === 'amtModeKeyPressed') {
+                    format = d3.format(',');
+                    return format(value);
+                }
+                
+                return _this.toHHMMSS(value);
+
+            }
 
         }
     }
@@ -173,30 +171,30 @@ chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actu
 
 </script>
 
+<div id="filedrop">
+<!-- <label for="csv-file">Choose a file...</label> -->
 <input type="file" id="csv-file" name="files"/>
-
 </div>
 
-<!-- Hide unwanted bar graphs -->
-<style>
-.c3-target-amtOfTouches {
-  display: none;
-}
+<div id="droptext">
+<span id="droplogtext"<h2>Drop CRDL log here</h2></span>
+</div>
 
-.c3-target-amtModeKeyPressed {
-  display: none;
-}
-
-.c3-target-amtOfSessions {
-  display: none;
-}
-</style>
+</div>
+<br>
+<div id="crdlsummary">
 <p>CRDL has been on for </p><p id="amtOfTimesOn"></p><p> times since reset of the log.</p><br>
 <p>It ran for a total of </p><p id="totalRuntime"></p><p>.</p><br>
 <p>People shared a connection for </p><p id="totalConnectionTime"></p><p>.</p><br>
 <p>Actual physical touch duration total was </p><p id="totalActualTouchTime"></p><p>.</p><br>
 <p>People touched each other for </p><p id="totalTouches"></p><p> times.</p><br>
 <p>In total there were </p><p id="totalSessions"></p><p> sessions.</p><br>
+</div>
+
+
+
+
+
 
 <style>
 @media all { 
@@ -207,6 +205,8 @@ chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actu
 	    color: #000;
 	    padding: .6em;
 	    -webkit-font-smoothing: antialiased;
+        /* margin: 0;
+        height: 100%; */
 	}
 	.container {
 	    overflow: hidden;
@@ -296,11 +296,56 @@ chart.data.names({runTime: 'Total time', connectionTime: 'Connection time', actu
         font-weight: bold;
     }
 
+    #crdlsummary {
+        display: none;
+    }
+
+    #filedrop > * {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        background: rgba(255,0,0,0.1);
+        z-index: 10;
+    }
+
+    #csv-file {
+        opacity: 0;
+    }
+
+    #droplogtext {
+        position: fixed;
+        height: 50%;
+        width: 100%;
+        font-size: 24px;
+        text-align: center;
+        /* padding: 0 20px;
+        margin: 20px; */
+        display: flex;
+        justify-content: center;
+        /* align horizontal */
+        align-items: center;
+        /* align vertical */
+    }
+
+    #crdltitle {
+        /* position: fixed; */
+        width: 100%;
+        font-size: 20px;
+        text-align: center;
+        /* padding: 0 20px;
+        margin: 20px; */
+        display: flex;
+        justify-content: center;
+        /* align horizontal */
+        align-items: center;
+        /* align vertical */
+    }
 
 }
 
 </style>
-
 
 </body>
 </html>
