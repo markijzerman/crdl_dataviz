@@ -425,6 +425,37 @@ chart.unload({
     .c3-legend-item {
         fill: #fff;
     }
+
+@media print {
+    body {
+	    font: normal 100% Open Sans,Helvetica,sans-serif;
+	    background: white;
+	    color: black;
+	    padding: 1em;
+	    -webkit-font-smoothing: antialiased;
+	}
+
+    h1, p, h2 {
+    color: black;
+	}
+
+    .c3-axis {
+    fill: black;
+    }
+
+    .c3 .c3-axis-x path, .c3 .c3-axis-x line {
+    stroke: black;
+    }
+
+    .c3 .c3-axis-y path, .c3 .c3-axis-y line {
+    stroke: black;
+    }
+
+    .c3-legend-item {
+    fill: black;
+    }
+
+}
     
 }
 
