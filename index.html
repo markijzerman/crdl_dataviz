@@ -45,9 +45,13 @@
         dynamicTyping: true,
         complete: function(results) {
 
-
+        // display the summary, print button and date
         var x = document.getElementById("crdlsummary");
         x.style.display = "block";
+        var x = document.getElementById("printbutton");
+        x.style.display = "block";
+        var x = new Date();
+        document.getElementById("date").innerHTML = x.toLocaleDateString();
 
         // when loaded a csv file, put in arrays
         var lognr = [];
@@ -230,12 +234,18 @@ chart.unload({
 </div>
 <br>
 <div id="crdlsummary">
+<p>Log date: <span id="date"></span>.</p><br>
 <p>CRDL has been on for </p><p id="amtOfTimesOn"></p><p> times since reset of the log.</p><br>
 <p>It ran for a total of </p><p id="totalRuntime"></p><p>.</p><br>
 <p>People shared a connection for </p><p id="totalConnectionTime"></p><p>.</p><br>
 <p>Actual physical touch duration total was </p><p id="totalActualTouchTime"></p><p>.</p><br>
 <p>People touched each other for </p><p id="totalTouches"></p><p> times.</p><br>
 <p>In total there were </p><p id="totalSessions"></p><p> sessions.</p><br>
+</div>
+<br>
+<br>
+<div id="printbutton">
+    <a href="javascript:window.print()"><h2>Print this page.</h2></a>
 </div>
 
 
@@ -293,13 +303,13 @@ chart.unload({
 
 
 	a:link {
-	    color: #333;
+	    color: white;
 	    text-decoration: none;
 	    border-width: 0;
 	    border-style: none;
 	}
 	a:visited {
-	    color: #333;
+	    color: white;
 	    text-decoration: none;
 	    border: 0;
 	    border-width: 0;
@@ -346,12 +356,16 @@ chart.unload({
 
 
 
-    #totalSessions {
+    #totalSessions, #date {
         color: #fff;
         font-weight: bold;
     }
 
     #crdlsummary {
+        display: none;
+    }
+
+    #printbutton {
         display: none;
     }
 
@@ -426,6 +440,11 @@ chart.unload({
         fill: #fff;
     }
 
+    #printbutton {
+        text-decoration: underline;
+        text-decoration-color: white;
+    }
+
 @media print {
     body {
 	    font: normal 100% Open Sans,Helvetica,sans-serif;
@@ -453,6 +472,15 @@ chart.unload({
 
     .c3-legend-item {
     fill: black;
+    }
+
+    #date, #amtOfTimesOn, #totalRuntime, #totalConnectionTime, #totalActualTouchTime, #totalTouches, #totalSessions {
+    color: black;
+    }
+
+    #printbutton {
+    visibility: hidden;
+    display: none;
     }
 
 }
